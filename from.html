@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tournament Rules</title>
+  <style>
+    :root{
+      --bg:#0f1220; --card:#151a2e; --accent:#5b8cff; --text:#e9edf5; --muted:#a9b2c7;
+      --ok:#34d399; --danger:#ff6b6b; --ring: rgba(91,140,255,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(1200px 600px at 10% 0%, #1a2040 0%, #0e1225 45%, #0a0d1b 100%), var(--bg);
+      color:var(--text); line-height:1.6;
+    }
+    .container{ max-width:1000px; margin:auto; padding:24px; }
+    .header{ display:grid; gap:10px; margin-bottom:18px; }
+    .badge{ display:inline-block; padding:.25rem .6rem; border:1px solid rgba(255,255,255,.15); border-radius:999px; font-size:.9rem; color:var(--muted); backdrop-filter:saturate(120%) blur(2px);}
+    .title{ font-size:clamp(1.5rem, 2.2vw + 1rem, 2.6rem); font-weight:800; letter-spacing:.2px; }
+    .subtitle{ color:var(--muted); max-width:60ch; }
+
+    .grid{ display:grid; gap:20px; grid-template-columns:1fr; }
+    @media (min-width:720px){ .grid{grid-template-columns: 1.2fr .8fr;} }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35); position:relative; overflow:hidden;
+    }
+    .card::after{
+      content:""; position:absolute; inset: -30% -10% auto auto;
+      width:320px; height:320px;
+      background: radial-gradient(closest-side, var(--ring), transparent 70%);
+      transform:translate(30%,-30%); pointer-events:none;
+    }
+
+    .rules{ list-style:none; padding:0; margin:0; counter-reset: rule; display:grid; gap:12px; }
+    .rule{
+      counter-increment: rule;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px; padding:14px 14px 14px 60px;
+      position:relative; transition: transform .16s ease, border-color .16s ease, background-color .16s ease;
+    }
+    .rule:hover{ transform: translateY(-1px); border-color: rgba(91,140,255,.45); background: rgba(91,140,255,.06); }
+    .rule::before{
+      content: counter(rule);
+      position:absolute; left:12px; top:50%; transform:translateY(-50%);
+      width:34px; height:34px; border-radius:10px; display:grid; place-items:center;
+      font-weight:800; font-size:1rem; color:white;
+      background: linear-gradient(135deg, var(--accent), #7aa2ff);
+      box-shadow: 0 4px 12px rgba(91,140,255,.35);
+      border:1px solid rgba(255,255,255,.25);
+    }
+    .rule strong{color:#fff}
+    .rule small{color:var(--muted)}
+
+    .side{ display:grid; gap:14px; }
+    .info{
+      display:grid; gap:10px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px; padding:16px;
+    }
+    .row{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+    .key{color:var(--muted)} .val{font-weight:700}
+
+    .cta{ display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; }
+    .btn{
+      appearance:none; border:none; cursor:pointer; padding:12px 16px; border-radius:12px; font-weight:700;
+      background: linear-gradient(135deg, var(--accent), #7aa2ff); color:#fff;
+      box-shadow: 0 8px 22px rgba(91,140,255,.35);
+      transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .btn:active{transform: translateY(0)}
+    .btn.alt{ background:transparent; color:var(--text); border:1px solid rgba(255,255,255,.18); box-shadow:none; }
+
+    /* ---------- Registration Modal ---------- */
+    .modal{
+      position:fixed; inset:0; display:none; place-items:center; padding:20px;
+      background:black; z-index:50;
+    }
+    .modal.open{ display:grid; }
+    .form-card{
+      width:min(860px, 100%);
+      background:linear-gradient(180deg, black, black);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:18px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.45);
+    }
+    .form-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .form-title{ font-size:1.25rem; font-weight:800; }
+    .close-x{ background:transparent; border:1px solid rgba(255,255,255,.2); border-radius:10px; padding:6px 10px; color:#fff; cursor:pointer; }
+
+    .form-grid{ display:grid; gap:12px; grid-template-columns:1fr; }
+    @media (min-width:720px){ .form-grid.two{ grid-template-columns:1fr 1fr; } }
+
+    .field{ display:grid; gap:6px; }
+    label{ font-weight:700; font-size:.95rem; }
+    input, select, textarea{
+      width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.18);
+      background:black; color:white; outline:none;
+    }
+    input::placeholder, textarea::placeholder{ color:#cbd5e1 }
+    .muted{ color:var(--muted); font-size:.9rem; }
+
+    .players{
+      display:grid; grid-template-columns: 1fr; gap:8px; max-height:260px; overflow:auto;
+      border:1px dashed rgba(255,255,255,.2) ; padding:10px; border-radius:12px;
+    }
+    .players .p-row{ display:grid; grid-template-columns:40px 1fr 1fr; gap:10px; align-items:center; }
+    .players .sl{ text-align:center; font-weight:700; }
+    .actions{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+
+    /* ---------- Print friendly ---------- */
+    @media print{
+      body{ background:#fff !important; color:#130808 }
+      .container, .card, .info, .form-card{ background:#fff !important; border-color:#ddd !important; box-shadow:none !important }
+      .btn, .cta, .close-x{ display:none !important }
+      .modal{ position:static; inset:auto; background:#fff; display:block !important; padding:0; }
+      .form-card{ width:100%; }
+      .title{ color:#1b0606 }
+      .rule{ background:#fff }
+      .rule::before{ background:#0e0303; color:#fff; box-shadow:none }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="badge">🏆 Team 15 — One Day Tournament</span>
+      <h1 class="title">টুর্নামেন্টের নিয়মাবলী</h1>
+      <p class="subtitle">নিচের নিয়মগুলো অনুসরণ বাধ্যতামূলক। আয়োজক কমিটির প্রয়োজনীয় পরিবর্তনের অধিকার সংরক্ষিত।</p>
+    </div>
+
+    <div class="grid">
+      <!-- Rules Card -->
+      <section class="card" aria-labelledby="rules-title">
+        <h2 id="rules-title" style="margin-top:0;margin-bottom:12px;">Official Rules</h2>
+        <ol class="rules">
+          <li class="rule"><strong>টিম ফি:</strong> প্রতিটি দলের জন্য <strong>২,০০০ টাকা</strong> এন্ট্রি ফি।</li>
+          <li class="rule"><strong>টিম সাইজ:</strong> প্রতি দলে সর্বোচ্চ ১১ জন + ৩ জন রিজার্ভ।</li>
+          <li class="rule"><strong>ফরম্যাট:</strong> একদিনের <strong>নক-আউট</strong> ভিত্তিক টুর্নামেন্ট।</li>
+          <li class="rule"><strong>সময়ানুবর্তিতা:</strong> নির্ধারিত সময়ে উপস্থিত না হলে <strong>Walkover</strong>।</li>
+          <li class="rule"><strong>খেলোয়াড় পরিবর্তন:</strong> নিবন্ধনের পর <strong>পরিবর্তন করা যাবে না</strong>।</li>
+          <li class="rule"><strong>আচরণবিধি:</strong> অসদাচরণ/ঝগড়া হলে দল <strong>বহিষ্কার</strong>।</li>
+          <li class="rule"><strong>রেফারির সিদ্ধান্ত:</strong> মাঠে রেফারির সিদ্ধান্তই <strong>চূড়ান্ত</strong>।</li>
+          <li class="rule"><strong>ড্র হলে:</strong> গেম অনুযায়ী <strong>Super Over / Penalty Shootout</strong>।</li>
+          <li class="rule"><strong>ড্রেস কোড:</strong> নিজস্ব জার্সি/ড্রেস <strong>বাধ্যতামূলক</strong>।</li>
+          <li class="rule"><strong>পুরস্কার:</strong> চ্যাম্পিয়ন ট্রফি + পুরস্কার, রানার-আপের জন্যও বিশেষ পুরস্কার।</li>
+        </ol>
+      </section>
+
+      <!-- Side Info -->
+      <aside class="side">
+        <div class="info">
+          <div class="row"><span class="key">এন্ট্রি ফি</span><span class="val">৳ ২,০০০</span></div>
+          <div class="row"><span class="key">ফরম্যাট</span><span class="val">One Day • Knockout</span></div>
+          <div class="row"><span class="key">টিম মেম্বার</span><span class="val">১১ + ৩ রিজার্ভ</span></div>
+        </div>
+
+        <div class="cta">
+          <button class="btn" onclick="openModal()">টিম রেজিস্টার করুন</button>
+          <button class="btn alt" onclick="window.print()">প্রিন্ট করুন</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Registration Modal -->
+  <div id="regModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="regTitle">
+    <div class="form-card">
+      <div class="form-header">
+        <div class="form-title" id="regTitle">টিম রেজিস্ট্রেশন ফর্ম</div>
+        <button class="close-x" onclick="closeModal()" aria-label="Close">বন্ধ করুন ✕</button>
+      </div>
+
+      <!-- Team & Contact -->
+      <div class="form-grid two">
+        <div class="field">
+          <label for="teamName">টিমের নাম</label>
+          <input id="teamName" type="text" placeholder="উদা: টিম ১৫" required>
+        </div>
+        <div class="field">
+          <label for="gameType">খেলার ধরন</label>
+          <select id="gameType">
+            <option>Cricket (One Day)</option>
+            <option>Football (Knockout)</option>
+            <option>Badminton (Knockout)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="captain">ক্যাপ্টেনের নাম</label>
+          <input id="captain" type="text" placeholder="উদা: রহিম উদ্দিন" required>
+        </div>
+        <div class="field">
+          <label for="phone">মোবাইল নাম্বার</label>
+          <input id="phone" type="tel" placeholder="01XXXXXXXXX" required>
+        </div>
+
+        <div class="field">
+          <label for="email">ইমেইল (ঐচ্ছিক)</label>
+          <input id="email" type="email" placeholder="you@example.com">
+        </div>
+        <div class="field">
+          <label for="payment">পেমেন্ট মাধ্যম</label>
+          <select id="payment">
+            <option>bKash</option>
+            <option>Nagad</option>
+            <option>Rocket</option>
+            <option>Cash</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="trx">ট্রানজেকশন আইডি (Online হলে)</label>
+          <input id="trx" type="text" placeholder="উদা: 8AB12C3D4">
+        </div>
+        <div class="field">
+          <label for="venue">খেলার ভেন্যু</label>
+          <input id="venue" type="text" placeholder="উদা: ধানমন্ডি মাঠ">
+        </div>
+      </div>
+
+      <!-- Players -->
+      <div class="field" style="margin-top:12px;">
+        <label>প্লেয়ার তালিকা (১১ জন + ৩ রিজার্ভ)</label>
+        <div class="players" id="playersBox">
+          <!-- 1–14 rows -->
+        </div>
+        <div class="muted">প্রয়োজনে রিজার্ভ হিসেবে শেষ ৩ জন লিখুন।</div>
+      </div>
+
+      <!-- Notes -->
+      <div class="field" style="margin-top:8px;">
+        <label for="note">অতিরিক্ত তথ্য (ঐচ্ছিক)</label>
+        <textarea id="note" rows="3" placeholder="বিশেষ নির্দেশনা/কমেন্ট লিখুন..."></textarea>
+      </div>
+
+      <div style="margin-top:8px;">
+        <label style="display:flex; gap:8px; align-items:center;">
+          <input type="checkbox" id="agree">
+          <span class="muted">আমি উপরের নিয়মাবলী মেনে নিচ্ছি।</span>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button class="btn" onclick="handleSubmit()">সাবমিট & প্রিন্ট</button>
+        <button class="btn alt" onclick="window.print()">শুধু প্রিন্ট</button>
+        <button class="btn alt" onclick="closeModal()">ক্লোজ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Open/Close modal
+    function openModal(){
+      const m = document.getElementById('regModal');
+      m.classList.add('open');
+      m.setAttribute('aria-hidden','false');
+      // Build player rows if empty
+      const box = document.getElementById('playersBox');
+      if(!box.dataset.filled){
+        for(let i=1;i<=4;i++){
+          const row = document.createElement('div');
+          row.className='p-row';
+          row.innerHTML = `
+            <div class="sl">${i.toString().padStart(2,'0')}</div>
+            <input type="text" placeholder="খেলোয়াড়ের নাম">
+            <input type="text" placeholder="ফোন নাম্বার">
+          `;
+          box.appendChild(row);
+        }
+        box.dataset.filled = "1";
+      }
+    }
+    function closeModal(){
+      const m = document.getElementById('regModal');
+      m.classList.remove('open');
+      m.setAttribute('aria-hidden','true');
+    }
+
+    // Simple validation + print
+    function handleSubmit(){
+      const agree = document.getElementById('agree').checked;
+      const team  = document.getElementById('teamName').value.trim();
+      const cap   = document.getElementById('captain').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+
+      if(!team || !cap || !phone){
+        alert('টিমের নাম, ক্যাপ্টেনের নাম ও মোবাইল বাধ্যতামূলক।');
+        return;
+      }
+      if(!agree){
+        alert('দয়া করে নিয়মাবলী স্বীকার করুন (চেকবক্সে টিক দিন)।');
+        return;
+      }
+      // প্রিন্ট ডায়ালগ
+      window.print();
+    }
+
+    // ESC to close modal
+    document.addEventListener('keydown', (e)=>{
+      const open = document.getElementById('regModal').classList.contains('open');
+      if(e.key === 'Escape' && open) closeModal();
+    });
+
+    // Click outside to close
+    document.getElementById('regModal').addEventListener('click', (e)=>{
+      if(e.target.id === 'regModal') closeModal();
+    });
+  </script>
+</body>
+</html>
