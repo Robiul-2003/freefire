@@ -87,6 +87,8 @@
     .modal.open{ display:grid; }
     .form-card{
       width:min(860px, 100%);
+      max-height:90vh;       /* scrollable modal */
+      overflow-y:auto;
       background:linear-gradient(180deg, rgb(26, 3, 3), rgb(11, 4, 4));
       border:1px solid rgba(255,255,255,.12);
       border-radius:18px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.45);
@@ -107,9 +109,12 @@
     input::placeholder, textarea::placeholder{ color:#cbd5e1 }
     .muted{ color:var(--muted); font-size:.9rem; }
 
+    /* ---------- Scrollable players ---------- */
     .players{
       display:grid; grid-template-columns: 1fr; gap:8px; 
       border:1px dashed rgba(255,255,255,.2) ; padding:10px; border-radius:12px;
+      max-height:300px;   /* scrollbar height */
+      overflow-y:auto;
     }
     .players .p-row{ display:grid; grid-template-columns:40px 1fr 1fr; gap:10px; align-items:center; }
     .players .sl{ text-align:center; font-weight:700; }
@@ -230,7 +235,7 @@
       <div class="field" style="margin-top:12px;">
         <label>প্লেয়ার তালিকা (১১ জন + ৩ রিজার্ভ)</label>
         <div class="players" id="playersBox">
-          <!-- 1–14 rows -->
+          <!-- Player rows created by JS -->
         </div>
         <div class="muted">প্রয়োজনে রিজার্ভ হিসেবে শেষ ৩ জন লিখুন।</div>
       </div>
@@ -262,10 +267,10 @@
       const m = document.getElementById('regModal');
       m.classList.add('open');
       m.setAttribute('aria-hidden','false');
-      // Build player rows if empty
+
       const box = document.getElementById('playersBox');
       if(!box.dataset.filled){
-        for(let i=1;i<=4;i++){
+        for(let i=1;i<=4;i++){  // ১১ + ৩ রিজার্ভ
           const row = document.createElement('div');
           row.className='p-row';
           row.innerHTML = `
@@ -299,7 +304,6 @@
         alert('দয়া করে নিয়মাবলী স্বীকার করুন (চেকবক্সে টিক দিন)।');
         return;
       }
-      // প্রিন্ট ডায়ালগ
       window.print();
     }
 
@@ -310,7 +314,7 @@
     });
 
     // Click outside to close
-    document.getElementById('regModal').addEventListener('click', (e)=>{
+    document.getElementById('regModal').addEventListener('click',(e)=>{
       if(e.target.id === 'regModal') closeModal();
     });
   </script>
